@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Python Flask Onboarding</title>
+  <style>
+    /* Full-screen Spider-Man background */
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #f8fafc;
+      background: 
+        linear-gradient(rgba(10, 20, 35, 0.45), rgba(10, 20, 35, 0.65)),
+        url('/static/Spoderman.jpg') center/cover no-repeat fixed;
+    }
+
+    /* Glass credentials card */
+    .card {
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(16px) saturate(150%);
+      -webkit-backdrop-filter: blur(16px) saturate(150%);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+      padding: 2.25rem 2rem;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 420px;
+      box-sizing: border-box;
+    }
+
+    .card h2 {
+      color: #ffffff;
+      margin-top: 0;
+      margin-bottom: 1.5rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    }
+
+    .form-group {
+      margin-bottom: 1.15rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+      color: #cbd5e1;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      box-sizing: border-box;
+      outline: none;
+      background: rgba(255, 255, 255, 0.08);
+      color: #ffffff;
+      font-size: 0.95rem;
+      transition: all 0.25s ease;
+    }
+
+    input::placeholder {
+      color: #94a3b8;
+    }
+
+    input:focus {
+      border-color: #38bdf8;
+      background: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.35);
+    }
+
+    .error-msg {
+      color: #f87171;
+      font-size: 0.8rem;
+      margin-top: 0.35rem;
+      display: none;
+    }
+
+    button[type="submit"] {
+      width: 100%;
+      background: linear-gradient(135deg, #0284c7, #2563eb);
+      color: #fff;
+      border: none;
+      padding: 0.85rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    button[type="submit"]:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.6);
+    }
+
+    /* Password strength bar styles */
+    .strength-container {
+      margin-top: 8px;
+      margin-bottom: 8px;
+    }
+
+    .strength-bar {
+      height: 5px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .strength-fill {
+      height: 100%;
+      width: 0%;
+      transition: width 0.3s ease, background-color 0.3s ease;
+      border-radius: 4px;
+    }
+
+    .strength-text {
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-top: 4px;
+      text-align: right;
+      color: #94a3b8;
+    }
+
+    .rules-list {
+      list-style: none;
+      padding: 0;
+      margin: 8px 0 0 0;
+      font-size: 0.78rem;
+      color: #94a3b8;
+    }
+
+    .rules-list li {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 3px;
+      transition: color 0.2s ease;
+    }
+
+    .rules-list li.valid {
+      color: #4ade80;
+    }
+
+    /* Hero Banner styles */
+    .hero-banner {
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 2rem;
+      box-sizing: border-box;
+      color: #fff;
+      background: 
+        linear-gradient(rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.82)),
+        url('https://c4.wallpaperflare.com/wallpaper/463/937/179/god-of-war-ragnarok-kratos-god-of-war-playstation-5-playstation-4-hd-wallpaper-preview.jpg') center/cover no-repeat;
+    }
+
+    .hero-banner h1 {
+      font-size: 3rem;
+      margin-bottom: 0.75rem;
+      text-shadow: 0 4px 16px rgba(0, 0, 0, 0.7);
+    }
+
+    .hero-banner p {
+      font-size: 1.2rem;
+      color: #cbd5e1;
+      max-width: 650px;
+      line-height: 1.6;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+    }
+
+    /* Liquid Glass Sign Out Button */
+    .btn-signout {
+      width: auto;
+      margin-top: 1.5rem;
+      padding: 0.75rem 2rem;
+      border-radius: 9999px;
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(14px) saturate(160%);
+      -webkit-backdrop-filter: blur(14px) saturate(160%);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      box-shadow: 
+        0 8px 32px 0 rgba(0, 0, 0, 0.37),
+        inset 0 1px 1px 0 rgba(255, 255, 255, 0.6),
+        inset 0 -1px 2px 0 rgba(0, 0, 0, 0.2);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .btn-signout:hover {
+      background: rgba(255, 255, 255, 0.22);
+      border-color: rgba(255, 255, 255, 0.6);
+      transform: translateY(-2px);
+      box-shadow: 
+        0 12px 40px 0 rgba(0, 0, 0, 0.45),
+        inset 0 1px 2px 0 rgba(255, 255, 255, 0.9),
+        inset 0 -1px 3px 0 rgba(0, 0, 0, 0.3);
+    }
+
+    .btn-signout:active {
+      transform: translateY(1px);
+      background: rgba(255, 255, 255, 0.08);
+      box-shadow: 
+        0 4px 16px 0 rgba(0, 0, 0, 0.3),
+        inset 0 2px 4px 0 rgba(0, 0, 0, 0.4);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SIGNUP SECTION -->
+  <div id="signup-section" class="card">
+    <h2>Create Account</h2>
+    <form id="signup-form" novalidate>
+      <div class="form-group">
+        <label for="name">Full Name</label>
+        <input type="text" id="name" placeholder="Peter Parker" />
+        <div class="error-msg" id="name-error">Name must be at least 2 characters.</div>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" placeholder="peter@example.com" />
+        <div class="error-msg" id="email-error">Enter a valid email address.</div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Create password" autocomplete="new-password" />
+        
+        <!-- STRENGTH METER ELEMENTS -->
+        <div class="strength-container" id="strength-container" style="display: none;">
+          <div class="strength-bar">
+            <div class="strength-fill" id="strength-fill"></div>
+          </div>
+          <div class="strength-text" id="strength-label">Password strength</div>
+        </div>
+
+        <ul class="rules-list" id="rules-list" style="display: none;">
+          <li id="rule-len">✕ At least 8 characters</li>
+          <li id="rule-case">✕ Uppercase & lowercase letters</li>
+          <li id="rule-num">✕ At least one number (0-9)</li>
+          <li id="rule-special">✕ At least one special symbol (!@#$%^&*)</li>
+        </ul>
+
+        <div class="error-msg" id="password-error">Please choose a stronger password.</div>
+      </div>
+
+      <button type="submit" id="submit-btn">Sign Up</button>
+      <div class="error-msg" id="general-error" style="margin-top:0.75rem;"></div>
+    </form>
+  </div>
+
+  <!-- HERO SECTION -->
+  <div id="home-section" class="hero-banner hidden">
+    <h1>Welcome, <span id="user-display-name"></span>!</h1>
+    <p>Your session is active. Even if you completely close your browser and return, you will remain logged in.</p>
+    <button class="btn-signout" id="signout-btn">Sign Out</button>
+  </div>
+
+  <script>
+    const signupSection = document.getElementById('signup-section');
+    const homeSection = document.getElementById('home-section');
+    const signupForm = document.getElementById('signup-form');
+    const userDisplayName = document.getElementById('user-display-name');
+
+    // Password strength elements
+    const passwordInput = document.getElementById('password');
+    const strengthContainer = document.getElementById('strength-container');
+    const strengthFill = document.getElementById('strength-fill');
+    const strengthLabel = document.getElementById('strength-label');
+    const rulesList = document.getElementById('rules-list');
+
+    const ruleLen = document.getElementById('rule-len');
+    const ruleCase = document.getElementById('rule-case');
+    const ruleNum = document.getElementById('rule-num');
+    const ruleSpecial = document.getElementById('rule-special');
+
+    let isPasswordStrong = false;
+
+    // Live Password Strength Check
+    passwordInput.addEventListener('input', () => {
+      const val = passwordInput.value;
+
+      if (val.length === 0) {
+        strengthContainer.style.display = 'none';
+        rulesList.style.display = 'none';
+        isPasswordStrong = false;
+        return;
+      }
+
+      strengthContainer.style.display = 'block';
+      rulesList.style.display = 'block';
+
+      const hasMinLen = val.length >= 8;
+      const hasMixedCase = /[a-z]/.test(val) && /[A-Z]/.test(val);
+      const hasNumber = /[0-9]/.test(val);
+      const hasSpecial = /[^A-Za-z0-9]/.test(val);
+
+      updateRule(ruleLen, hasMinLen, 'At least 8 characters');
+      updateRule(ruleCase, hasMixedCase, 'Uppercase & lowercase letters');
+      updateRule(ruleNum, hasNumber, 'At least one number (0-9)');
+      updateRule(ruleSpecial, hasSpecial, 'At least one special symbol (!@#$%^&*)');
+
+      const score = [hasMinLen, hasMixedCase, hasNumber, hasSpecial].filter(Boolean).length;
+
+      if (score <= 1) {
+        strengthFill.style.width = '25%';
+        strengthFill.style.backgroundColor = '#ef4444';
+        strengthLabel.textContent = 'Weak';
+        strengthLabel.style.color = '#ef4444';
+        isPasswordStrong = false;
+      } else if (score === 2) {
+        strengthFill.style.width = '50%';
+        strengthFill.style.backgroundColor = '#f97316';
+        strengthLabel.textContent = 'Fair';
+        strengthLabel.style.color = '#f97316';
+        isPasswordStrong = false;
+      } else if (score === 3) {
+        strengthFill.style.width = '75%';
+        strengthFill.style.backgroundColor = '#eab308';
+        strengthLabel.textContent = 'Good';
+        strengthLabel.style.color = '#eab308';
+        isPasswordStrong = false;
+      } else {
+        strengthFill.style.width = '100%';
+        strengthFill.style.backgroundColor = '#22c55e';
+        strengthLabel.textContent = 'Strong';
+        strengthLabel.style.color = '#22c55e';
+        isPasswordStrong = true;
+      }
+    });
+
+    function updateRule(element, isValid, labelText) {
+      if (isValid) {
+        element.classList.add('valid');
+        element.textContent = `✓ ${labelText}`;
+      } else {
+        element.classList.remove('valid');
+        element.textContent = `✕ ${labelText}`;
+      }
+    }
+
+    // Check Session on page load
+    async function checkAuth() {
+      try {
+        const res = await fetch('/api/me');
+        if (res.ok) {
+          const data = await res.json();
+          showHomePage(data.user.name);
+        } else {
+          showSignupPage();
+        }
+      } catch (err) {
+        showSignupPage();
+      }
+    }
+
+    function showHomePage(name) {
+      userDisplayName.textContent = name;
+      signupSection.classList.add('hidden');
+      homeSection.classList.remove('hidden');
+    }
+
+    function showSignupPage() {
+      signupSection.classList.remove('hidden');
+      homeSection.classList.add('hidden');
+    }
+
+    // Submit handler with strong password check
+    signupForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = passwordInput.value;
+
+      let isValid = true;
+
+      // Validate Name
+      if (name.length < 2) {
+        document.getElementById('name-error').style.display = 'block';
+        isValid = false;
+      } else {
+        document.getElementById('name-error').style.display = 'none';
+      }
+
+      // Validate Email
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        document.getElementById('email-error').style.display = 'block';
+        isValid = false;
+      } else {
+        document.getElementById('email-error').style.display = 'none';
+      }
+
+      // Validate Password Strength
+      if (!isPasswordStrong) {
+        document.getElementById('password-error').style.display = 'block';
+        isValid = false;
+      } else {
+        document.getElementById('password-error').style.display = 'none';
+      }
+
+      if (!isValid) return;
+
+      const submitBtn = document.getElementById('submit-btn');
+      submitBtn.textContent = 'Registering & Sending Email...';
+      submitBtn.disabled = true;
+
+      try {
+        const res = await fetch('/api/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password }),
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          showHomePage(data.user.name);
+        } else {
+          const genError = document.getElementById('general-error');
+          genError.textContent = data.error || 'Registration failed';
+          genError.style.display = 'block';
+        }
+      } catch (err) {
+        document.getElementById('general-error').textContent = 'Server connection error.';
+      } finally {
+        submitBtn.textContent = 'Sign Up';
+        submitBtn.disabled = false;
+      }
+    });
+
+    // Sign out handler
+    document.getElementById('signout-btn').addEventListener('click', async () => {
+      await fetch('/api/signout', { method: 'POST' });
+      showSignupPage();
+    });
+
+    checkAuth();
+  </script>
+</body>
+</html>
