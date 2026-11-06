@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Python Flask Onboarding</title>
+  <title>Secure Auth - Verified Original Email</title>
   <style>
-    /* Full-screen Spider-Man background */
     body {
       font-family: system-ui, -apple-system, sans-serif;
       margin: 0;
@@ -16,42 +15,87 @@
       color: #f8fafc;
       background: 
         linear-gradient(rgba(10, 20, 35, 0.45), rgba(10, 20, 35, 0.65)),
-        url('/static/Spoderman.jpg') center/cover no-repeat fixed;
+        url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1920&auto=format&fit=crop') center/cover no-repeat fixed;
     }
 
-    /* Glass credentials card */
     .card {
-      background: rgba(15, 23, 42, 0.65);
-      backdrop-filter: blur(16px) saturate(150%);
-      -webkit-backdrop-filter: blur(16px) saturate(150%);
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(18px) saturate(160%);
+      -webkit-backdrop-filter: blur(18px) saturate(160%);
       border: 1px solid rgba(255, 255, 255, 0.18);
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6);
       padding: 2.25rem 2rem;
       border-radius: 16px;
       width: 100%;
-      max-width: 420px;
+      max-width: 440px;
       box-sizing: border-box;
+      transition: all 0.3s ease;
     }
 
     .card h2 {
       color: #ffffff;
       margin-top: 0;
-      margin-bottom: 1.5rem;
+      margin-bottom: 0.35rem;
       font-weight: 700;
-      letter-spacing: 0.5px;
       text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    }
+
+    .subtitle {
+      font-size: 0.85rem;
+      color: #94a3b8;
+      margin-bottom: 1.25rem;
+      line-height: 1.4;
+    }
+
+    /* Tabs for Login vs Signup */
+    .tab-header {
+      display: flex;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 1.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 0.65rem 0;
+      border: none;
+      background: transparent;
+      color: #94a3b8;
+      font-weight: 600;
+      font-size: 0.9rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      text-align: center;
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, #0284c7, #2563eb);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
     }
 
     .form-group {
       margin-bottom: 1.15rem;
+      position: relative;
     }
 
     label {
-      display: block;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       font-size: 0.85rem;
       font-weight: 600;
       margin-bottom: 0.35rem;
       color: #cbd5e1;
+    }
+
+    .label-badge {
+      font-size: 0.72rem;
+      color: #38bdf8;
+      font-weight: 500;
     }
 
     input {
@@ -77,14 +121,31 @@
       box-shadow: 0 0 12px rgba(56, 189, 248, 0.35);
     }
 
+    .otp-input {
+      font-size: 1.85rem;
+      letter-spacing: 12px;
+      text-align: center;
+      font-weight: bold;
+      color: #38bdf8;
+    }
+
     .error-msg {
       color: #f87171;
-      font-size: 0.8rem;
-      margin-top: 0.35rem;
+      font-size: 0.82rem;
+      margin-top: 0.4rem;
+      line-height: 1.35;
       display: none;
     }
 
-    button[type="submit"] {
+    .success-msg {
+      color: #4ade80;
+      font-size: 0.82rem;
+      margin-top: 0.4rem;
+      line-height: 1.35;
+      display: none;
+    }
+
+    button[type="submit"], .btn-primary {
       width: 100%;
       background: linear-gradient(135deg, #0284c7, #2563eb);
       color: #fff;
@@ -98,12 +159,17 @@
       transition: transform 0.2s, box-shadow 0.2s;
     }
 
-    button[type="submit"]:hover {
+    button[type="submit"]:hover, .btn-primary:hover {
       transform: translateY(-1px);
       box-shadow: 0 6px 20px rgba(37, 99, 235, 0.6);
     }
 
-    /* Password strength bar styles */
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
     .strength-container {
       margin-top: 8px;
       margin-bottom: 8px;
@@ -152,7 +218,7 @@
       color: #4ade80;
     }
 
-    /* Hero Banner styles */
+    /* Hero / Authenticated Banner */
     .hero-banner {
       width: 100%;
       min-height: 100vh;
@@ -165,63 +231,85 @@
       box-sizing: border-box;
       color: #fff;
       background: 
-        linear-gradient(rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.82)),
+        linear-gradient(rgba(15, 23, 42, 0.75), rgba(15, 23, 42, 0.88)),
         url('https://c4.wallpaperflare.com/wallpaper/463/937/179/god-of-war-ragnarok-kratos-god-of-war-playstation-5-playstation-4-hd-wallpaper-preview.jpg') center/cover no-repeat;
     }
 
+    .badge-verified {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0.35rem 0.9rem;
+      background: rgba(34, 197, 94, 0.15);
+      border: 1px solid rgba(34, 197, 94, 0.4);
+      color: #4ade80;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
     .hero-banner h1 {
-      font-size: 3rem;
-      margin-bottom: 0.75rem;
+      font-size: 2.75rem;
+      margin-bottom: 0.5rem;
       text-shadow: 0 4px 16px rgba(0, 0, 0, 0.7);
     }
 
     .hero-banner p {
-      font-size: 1.2rem;
+      font-size: 1.15rem;
       color: #cbd5e1;
-      max-width: 650px;
+      max-width: 600px;
       line-height: 1.6;
+      margin-bottom: 1rem;
       text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
     }
 
-    /* Liquid Glass Sign Out Button */
+    .user-info-box {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      padding: 1rem 1.5rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.95rem;
+      color: #e2e8f0;
+    }
+
     .btn-signout {
       width: auto;
-      margin-top: 1.5rem;
-      padding: 0.75rem 2rem;
+      padding: 0.75rem 2.25rem;
       border-radius: 9999px;
       font-size: 1rem;
       font-weight: 600;
-      letter-spacing: 0.5px;
       cursor: pointer;
       color: #ffffff;
       background: rgba(255, 255, 255, 0.12);
-      backdrop-filter: blur(14px) saturate(160%);
-      -webkit-backdrop-filter: blur(14px) saturate(160%);
+      backdrop-filter: blur(14px);
       border: 1px solid rgba(255, 255, 255, 0.35);
-      box-shadow: 
-        0 8px 32px 0 rgba(0, 0, 0, 0.37),
-        inset 0 1px 1px 0 rgba(255, 255, 255, 0.6),
-        inset 0 -1px 2px 0 rgba(0, 0, 0, 0.2);
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
     }
 
     .btn-signout:hover {
       background: rgba(255, 255, 255, 0.22);
       border-color: rgba(255, 255, 255, 0.6);
       transform: translateY(-2px);
-      box-shadow: 
-        0 12px 40px 0 rgba(0, 0, 0, 0.45),
-        inset 0 1px 2px 0 rgba(255, 255, 255, 0.9),
-        inset 0 -1px 3px 0 rgba(0, 0, 0, 0.3);
     }
 
-    .btn-signout:active {
-      transform: translateY(1px);
-      background: rgba(255, 255, 255, 0.08);
-      box-shadow: 
-        0 4px 16px 0 rgba(0, 0, 0, 0.3),
-        inset 0 2px 4px 0 rgba(0, 0, 0, 0.4);
+    .footer-link {
+      margin-top: 1.25rem;
+      text-align: center;
+      font-size: 0.85rem;
+      color: #94a3b8;
+    }
+
+    .footer-link a {
+      color: #38bdf8;
+      text-decoration: none;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .footer-link a:hover {
+      text-decoration: underline;
     }
 
     .hidden {
@@ -231,63 +319,159 @@
 </head>
 <body>
 
-  <!-- SIGNUP SECTION -->
-  <div id="signup-section" class="card">
-    <h2>Create Account</h2>
-    <form id="signup-form" novalidate>
-      <div class="form-group">
-        <label for="name">Full Name</label>
-        <input type="text" id="name" placeholder="Peter Parker" />
-        <div class="error-msg" id="name-error">Name must be at least 2 characters.</div>
-      </div>
+  <!-- MAIN AUTH CONTAINER -->
+  <div id="auth-section" class="card">
+    
+    <!-- TABS -->
+    <div class="tab-header" id="tab-header">
+      <button type="button" class="tab-btn active" id="tab-login" onclick="switchAuthTab('login')">Log In</button>
+      <button type="button" class="tab-btn" id="tab-signup" onclick="switchAuthTab('signup')">Sign Up</button>
+    </div>
 
-      <div class="form-group">
-        <label for="email">Email Address</label>
-        <input type="email" id="email" placeholder="peter@example.com" />
-        <div class="error-msg" id="email-error">Enter a valid email address.</div>
-      </div>
+    <!-- 1. LOGIN FORM -->
+    <div id="login-container">
+      <h2>Welcome Back</h2>
+      <div class="subtitle">Log in using your verified email address.</div>
 
-      <div class="form-group">
-        <label for="password">Password</label>
-        <input type="password" id="password" placeholder="Create password" autocomplete="new-password" />
-        
-        <!-- STRENGTH METER ELEMENTS -->
-        <div class="strength-container" id="strength-container" style="display: none;">
-          <div class="strength-bar">
-            <div class="strength-fill" id="strength-fill"></div>
-          </div>
-          <div class="strength-text" id="strength-label">Password strength</div>
+      <form id="login-form" novalidate>
+        <div class="form-group">
+          <label for="login-email">Email Address</label>
+          <input type="email" id="login-email" placeholder="you@example.com" autocomplete="email" required />
+          <div class="error-msg" id="login-email-error">Please enter a valid email address.</div>
         </div>
 
-        <ul class="rules-list" id="rules-list" style="display: none;">
-          <li id="rule-len">✕ At least 8 characters</li>
-          <li id="rule-case">✕ Uppercase & lowercase letters</li>
-          <li id="rule-num">✕ At least one number (0-9)</li>
-          <li id="rule-special">✕ At least one special symbol (!@#$%^&*)</li>
-        </ul>
+        <div class="form-group">
+          <label for="login-password">Password</label>
+          <input type="password" id="login-password" placeholder="Enter your password" autocomplete="current-password" required />
+          <div class="error-msg" id="login-password-error">Please enter your password.</div>
+        </div>
 
-        <div class="error-msg" id="password-error">Please choose a stronger password.</div>
+        <button type="submit" id="login-submit-btn">Log In</button>
+        <div class="error-msg" id="login-general-error"></div>
+      </form>
+
+      <div class="footer-link">
+        Don't have an account yet? <a onclick="switchAuthTab('signup')">Sign up now</a>
+      </div>
+    </div>
+
+    <!-- 2. SIGNUP FORM -->
+    <div id="signup-container" class="hidden">
+      <h2>Create Account</h2>
+      <div class="subtitle">Enter your details. A verification code will be sent to confirm your original email.</div>
+
+      <form id="signup-form" novalidate>
+        <div class="form-group">
+          <label for="name">Full Name</label>
+          <input type="text" id="name" placeholder="Peter Parker" autocomplete="name" />
+          <div class="error-msg" id="name-error">Name must be letters and spaces only (min. 2 characters).</div>
+        </div>
+
+        <div class="form-group">
+          <label for="email">
+            <span>Email Address</span>
+            <span class="label-badge">Original Email Only</span>
+          </label>
+          <input type="email" id="email" placeholder="yourname@gmail.com" autocomplete="email" />
+          <div class="error-msg" id="email-error">Enter a valid real email address (temporary emails are blocked).</div>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="Create strong password" autocomplete="new-password" />
+          
+          <div class="strength-container" id="strength-container" style="display: none;">
+            <div class="strength-bar">
+              <div class="strength-fill" id="strength-fill"></div>
+            </div>
+            <div class="strength-text" id="strength-label">Password strength</div>
+          </div>
+
+          <ul class="rules-list" id="rules-list" style="display: none;">
+            <li id="rule-len">✕ At least 8 characters</li>
+            <li id="rule-case">✕ Uppercase & lowercase letters</li>
+            <li id="rule-num">✕ At least one number (0-9)</li>
+            <li id="rule-special">✕ At least one special symbol (!@#$%^&*)</li>
+          </ul>
+
+          <div class="error-msg" id="password-error">Password must fulfill all criteria above.</div>
+        </div>
+
+        <button type="submit" id="signup-submit-btn">Send Verification Code</button>
+        <div class="error-msg" id="signup-general-error"></div>
+      </form>
+
+      <div class="footer-link">
+        Already have an account? <a onclick="switchAuthTab('login')">Log in</a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- STEP 2: OTP VERIFICATION CARD -->
+  <div id="otp-section" class="card hidden">
+    <h2>Verify Your Email</h2>
+    <div class="subtitle">
+      To ensure you are using an authentic email, we sent a 6-digit code to:
+      <br /><strong id="sent-email-label" style="color: #38bdf8; font-size: 0.95rem; display: inline-block; margin-top: 4px;"></strong>
+    </div>
+
+    <!-- DEV MODE HELPER BANNER -->
+    <div id="dev-otp-banner" style="display: none; background: rgba(2, 132, 199, 0.2); border: 1px solid rgba(56, 189, 248, 0.4); padding: 12px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 1.25rem; color: #e0f2fe; line-height: 1.4;">
+      ⚡ <strong>Dev Mode Active:</strong> Gmail SMTP is not connected yet, so here is your test OTP code: <span id="dev-otp-code-val" style="font-weight: 700; color: #38bdf8; font-size: 1.1rem; letter-spacing: 2px;"></span> (it was also printed in your VS Code terminal).
+    </div>
+    
+    <form id="otp-form" novalidate>
+      <div class="form-group">
+        <label for="otp-code">6-Digit Verification Code</label>
+        <input type="text" id="otp-code" class="otp-input" maxlength="6" placeholder="000000" autocomplete="one-time-code" />
+        <div class="error-msg" id="otp-error">Please enter the full 6-digit code.</div>
       </div>
 
-      <button type="submit" id="submit-btn">Sign Up</button>
-      <div class="error-msg" id="general-error" style="margin-top:0.75rem;"></div>
+      <button type="submit" id="otp-submit-btn">Confirm Email & Finish</button>
+      <div class="error-msg" id="otp-general-error"></div>
+      <div class="success-msg" id="otp-resend-success"></div>
+
+      <div style="margin-top: 1.25rem; display: flex; justify-content: space-between; font-size: 0.85rem;">
+        <a href="#" id="resend-otp-btn" style="color: #38bdf8; text-decoration: underline;">Resend code</a>
+        <a href="#" id="back-to-auth" style="color: #94a3b8; text-decoration: underline;">Back to Sign Up</a>
+      </div>
     </form>
   </div>
 
-  <!-- HERO SECTION -->
+  <!-- STEP 3: LOGGED-IN HERO SECTION -->
   <div id="home-section" class="hero-banner hidden">
+    <div class="badge-verified">✓ Original Email Verified</div>
     <h1>Welcome, <span id="user-display-name"></span>!</h1>
-    <p>Your session is active. Even if you completely close your browser and return, you will remain logged in.</p>
+    <p>You have successfully logged in. Your email authenticity has been verified and your session is active.</p>
+    
+    <div class="user-info-box">
+      <div>Account: <strong id="user-display-email" style="color: #38bdf8;"></strong></div>
+    </div>
+
     <button class="btn-signout" id="signout-btn">Sign Out</button>
   </div>
 
   <script>
-    const signupSection = document.getElementById('signup-section');
-    const homeSection = document.getElementById('home-section');
-    const signupForm = document.getElementById('signup-form');
-    const userDisplayName = document.getElementById('user-display-name');
+    // Elements
+    const authSection = document.getElementById('auth-section');
+    const loginContainer = document.getElementById('login-container');
+    const signupContainer = document.getElementById('signup-container');
+    const tabLogin = document.getElementById('tab-login');
+    const tabSignup = document.getElementById('tab-signup');
+    const tabHeader = document.getElementById('tab-header');
 
-    // Password strength elements
+    const otpSection = document.getElementById('otp-section');
+    const homeSection = document.getElementById('home-section');
+
+    const loginForm = document.getElementById('login-form');
+    const signupForm = document.getElementById('signup-form');
+    const otpForm = document.getElementById('otp-form');
+
+    const userDisplayName = document.getElementById('user-display-name');
+    const userDisplayEmail = document.getElementById('user-display-email');
+    const sentEmailLabel = document.getElementById('sent-email-label');
+
     const passwordInput = document.getElementById('password');
     const strengthContainer = document.getElementById('strength-container');
     const strengthFill = document.getElementById('strength-fill');
@@ -300,8 +484,28 @@
     const ruleSpecial = document.getElementById('rule-special');
 
     let isPasswordStrong = false;
+    let pendingEmail = '';
 
-    // Live Password Strength Check
+    // Switch between Log In and Sign Up tabs
+    function switchAuthTab(tab) {
+      // Clear errors
+      document.querySelectorAll('.error-msg').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.success-msg').forEach(el => el.style.display = 'none');
+
+      if (tab === 'login') {
+        tabLogin.classList.add('active');
+        tabSignup.classList.remove('active');
+        loginContainer.classList.remove('hidden');
+        signupContainer.classList.add('hidden');
+      } else {
+        tabSignup.classList.add('active');
+        tabLogin.classList.remove('active');
+        signupContainer.classList.remove('hidden');
+        loginContainer.classList.add('hidden');
+      }
+    }
+
+    // Live Password Strength Check for Sign Up
     passwordInput.addEventListener('input', () => {
       const val = passwordInput.value;
 
@@ -370,45 +574,127 @@
         const res = await fetch('/api/me');
         if (res.ok) {
           const data = await res.json();
-          showHomePage(data.user.name);
+          showHomePage(data.user.name, data.user.email);
         } else {
-          showSignupPage();
+          showAuthCard('login');
         }
       } catch (err) {
-        showSignupPage();
+        showAuthCard('login');
       }
     }
 
-    function showHomePage(name) {
+    function showHomePage(name, email) {
       userDisplayName.textContent = name;
-      signupSection.classList.add('hidden');
+      userDisplayEmail.textContent = email;
+      authSection.classList.add('hidden');
+      otpSection.classList.add('hidden');
       homeSection.classList.remove('hidden');
     }
 
-    function showSignupPage() {
-      signupSection.classList.remove('hidden');
+    function showAuthCard(tab = 'login') {
+      authSection.classList.remove('hidden');
+      otpSection.classList.add('hidden');
       homeSection.classList.add('hidden');
+      switchAuthTab(tab);
     }
 
-    // Submit handler with strong password check
+    function showOtpPage(email, devOtp = null) {
+      sentEmailLabel.textContent = email;
+      authSection.classList.add('hidden');
+      otpSection.classList.remove('hidden');
+      homeSection.classList.add('hidden');
+      const otpInput = document.getElementById('otp-code');
+      otpInput.value = devOtp || '';
+      document.getElementById('otp-error').style.display = 'none';
+      document.getElementById('otp-general-error').style.display = 'none';
+
+      const devBanner = document.getElementById('dev-otp-banner');
+      const devCodeVal = document.getElementById('dev-otp-code-val');
+      if (devOtp) {
+        devCodeVal.textContent = devOtp;
+        devBanner.style.display = 'block';
+      } else {
+        devBanner.style.display = 'none';
+      }
+    }
+
+    // 1. Submit Login Form
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+      const genError = document.getElementById('login-general-error');
+      genError.style.display = 'none';
+
+      let isValid = true;
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!email || !emailRegex.test(email)) {
+        document.getElementById('login-email-error').style.display = 'block';
+        isValid = false;
+      } else {
+        document.getElementById('login-email-error').style.display = 'none';
+      }
+
+      if (!password) {
+        document.getElementById('login-password-error').style.display = 'block';
+        isValid = false;
+      } else {
+        document.getElementById('login-password-error').style.display = 'none';
+      }
+
+      if (!isValid) return;
+
+      const submitBtn = document.getElementById('login-submit-btn');
+      submitBtn.textContent = 'Logging in...';
+      submitBtn.disabled = true;
+
+      try {
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          showHomePage(data.user.name, data.user.email);
+        } else {
+          genError.textContent = data.error || 'Login failed.';
+          genError.style.display = 'block';
+        }
+      } catch (err) {
+        genError.textContent = 'Server connection error. Please try again.';
+        genError.style.display = 'block';
+      } finally {
+        submitBtn.textContent = 'Log In';
+        submitBtn.disabled = false;
+      }
+    });
+
+    // 2. Submit Signup Form (Request Verification Code)
     signupForm.addEventListener('submit', async (e) => {
       e.preventDefault();
 
       const name = document.getElementById('name').value.trim();
       const email = document.getElementById('email').value.trim();
       const password = passwordInput.value;
+      const genError = document.getElementById('signup-general-error');
+      genError.style.display = 'none';
 
       let isValid = true;
 
-      // Validate Name
-      if (name.length < 2) {
+      // Name validation: letters and spaces only
+      const nameRegex = /^[A-Za-z\s]+$/;
+      if (name.length < 2 || !nameRegex.test(name)) {
         document.getElementById('name-error').style.display = 'block';
         isValid = false;
       } else {
         document.getElementById('name-error').style.display = 'none';
       }
 
-      // Validate Email
+      // Email format
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
         document.getElementById('email-error').style.display = 'block';
@@ -417,7 +703,7 @@
         document.getElementById('email-error').style.display = 'none';
       }
 
-      // Validate Password Strength
+      // Password strength
       if (!isPasswordStrong) {
         document.getElementById('password-error').style.display = 'block';
         isValid = false;
@@ -427,8 +713,8 @@
 
       if (!isValid) return;
 
-      const submitBtn = document.getElementById('submit-btn');
-      submitBtn.textContent = 'Registering & Sending Email...';
+      const submitBtn = document.getElementById('signup-submit-btn');
+      submitBtn.textContent = 'Sending Verification Code...';
       submitBtn.disabled = true;
 
       try {
@@ -441,26 +727,113 @@
         const data = await res.json();
 
         if (res.ok) {
-          showHomePage(data.user.name);
+          pendingEmail = email;
+          showOtpPage(email, data.dev_otp);
         } else {
-          const genError = document.getElementById('general-error');
-          genError.textContent = data.error || 'Registration failed';
+          genError.textContent = data.error || 'Registration failed.';
           genError.style.display = 'block';
         }
       } catch (err) {
-        document.getElementById('general-error').textContent = 'Server connection error.';
+        genError.textContent = 'Server connection error.';
+        genError.style.display = 'block';
       } finally {
-        submitBtn.textContent = 'Sign Up';
+        submitBtn.textContent = 'Send Verification Code';
         submitBtn.disabled = false;
       }
     });
 
-    // Sign out handler
-    document.getElementById('signout-btn').addEventListener('click', async () => {
-      await fetch('/api/signout', { method: 'POST' });
-      showSignupPage();
+    // 3. Submit OTP to Verify Email and Finish Registration
+    otpForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const otp = document.getElementById('otp-code').value.trim();
+      const otpError = document.getElementById('otp-error');
+      const genError = document.getElementById('otp-general-error');
+      genError.style.display = 'none';
+
+      if (otp.length !== 6 || !/^\d{6}$/.test(otp)) {
+        otpError.style.display = 'block';
+        return;
+      }
+      otpError.style.display = 'none';
+
+      const otpBtn = document.getElementById('otp-submit-btn');
+      otpBtn.textContent = 'Verifying...';
+      otpBtn.disabled = true;
+
+      try {
+        const res = await fetch('/api/verify-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: pendingEmail, otp }),
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          showHomePage(data.user.name, data.user.email);
+        } else {
+          genError.textContent = data.error || 'Verification failed.';
+          genError.style.display = 'block';
+        }
+      } catch (err) {
+        genError.textContent = 'Verification server error.';
+        genError.style.display = 'block';
+      } finally {
+        otpBtn.textContent = 'Confirm Email & Finish';
+        otpBtn.disabled = false;
+      }
     });
 
+    // Resend OTP
+    document.getElementById('resend-otp-btn').addEventListener('click', async (e) => {
+      e.preventDefault();
+      const resendBtn = document.getElementById('resend-otp-btn');
+      const successMsg = document.getElementById('otp-resend-success');
+      const genError = document.getElementById('otp-general-error');
+      genError.style.display = 'none';
+      resendBtn.textContent = 'Sending...';
+
+      try {
+        const res = await fetch('/api/resend-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: pendingEmail }),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          successMsg.textContent = data.message || 'New code sent to your inbox!';
+          successMsg.style.display = 'block';
+          if (data.dev_otp) {
+            document.getElementById('otp-code').value = data.dev_otp;
+            document.getElementById('dev-otp-code-val').textContent = data.dev_otp;
+            document.getElementById('dev-otp-banner').style.display = 'block';
+          }
+          setTimeout(() => { successMsg.style.display = 'none'; }, 6000);
+        } else {
+          genError.textContent = data.error || 'Failed to resend code.';
+          genError.style.display = 'block';
+        }
+      } catch (err) {
+        genError.textContent = 'Could not contact server to resend code.';
+        genError.style.display = 'block';
+      } finally {
+        resendBtn.textContent = 'Resend code';
+      }
+    });
+
+    document.getElementById('back-to-auth').addEventListener('click', (e) => {
+      e.preventDefault();
+      showAuthCard('signup');
+    });
+
+    // Sign out
+    document.getElementById('signout-btn').addEventListener('click', async () => {
+      await fetch('/api/signout', { method: 'POST' });
+      showAuthCard('login');
+    });
+
+    // Start check on load
     checkAuth();
   </script>
 </body>
