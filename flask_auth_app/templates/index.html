@@ -415,11 +415,6 @@
       To ensure you are using an authentic email, we sent a 6-digit code to:
       <br /><strong id="sent-email-label" style="color: #38bdf8; font-size: 0.95rem; display: inline-block; margin-top: 4px;"></strong>
     </div>
-
-    <!-- DEV MODE HELPER BANNER -->
-    <div id="dev-otp-banner" style="display: none; background: rgba(2, 132, 199, 0.2); border: 1px solid rgba(56, 189, 248, 0.4); padding: 12px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 1.25rem; color: #e0f2fe; line-height: 1.4;">
-      ⚡ <strong>Dev Mode Active:</strong> Gmail SMTP is not connected yet, so here is your test OTP code: <span id="dev-otp-code-val" style="font-weight: 700; color: #38bdf8; font-size: 1.1rem; letter-spacing: 2px;"></span> (it was also printed in your VS Code terminal).
-    </div>
     
     <form id="otp-form" novalidate>
       <div class="form-group">
@@ -598,24 +593,14 @@
       switchAuthTab(tab);
     }
 
-    function showOtpPage(email, devOtp = null) {
+    function showOtpPage(email) {
       sentEmailLabel.textContent = email;
       authSection.classList.add('hidden');
       otpSection.classList.remove('hidden');
       homeSection.classList.add('hidden');
-      const otpInput = document.getElementById('otp-code');
-      otpInput.value = devOtp || '';
+      document.getElementById('otp-code').value = '';
       document.getElementById('otp-error').style.display = 'none';
       document.getElementById('otp-general-error').style.display = 'none';
-
-      const devBanner = document.getElementById('dev-otp-banner');
-      const devCodeVal = document.getElementById('dev-otp-code-val');
-      if (devOtp) {
-        devCodeVal.textContent = devOtp;
-        devBanner.style.display = 'block';
-      } else {
-        devBanner.style.display = 'none';
-      }
     }
 
     // 1. Submit Login Form
@@ -728,7 +713,7 @@
 
         if (res.ok) {
           pendingEmail = email;
-          showOtpPage(email, data.dev_otp);
+          showOtpPage(email);
         } else {
           genError.textContent = data.error || 'Registration failed.';
           genError.style.display = 'block';
@@ -804,11 +789,6 @@
         if (res.ok) {
           successMsg.textContent = data.message || 'New code sent to your inbox!';
           successMsg.style.display = 'block';
-          if (data.dev_otp) {
-            document.getElementById('otp-code').value = data.dev_otp;
-            document.getElementById('dev-otp-code-val').textContent = data.dev_otp;
-            document.getElementById('dev-otp-banner').style.display = 'block';
-          }
           setTimeout(() => { successMsg.style.display = 'none'; }, 6000);
         } else {
           genError.textContent = data.error || 'Failed to resend code.';

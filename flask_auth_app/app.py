@@ -149,22 +149,17 @@ def signup():
     # 5. Generate secure 6-digit OTP code
     otp_code = f"{random.randint(100000, 999999)}"
 
-    # 6. Attempt sending verification email
-    email_sent = False
-    dev_mode_active = False
+    # 6. Send verification email to the user's inbox
     try:
         send_otp_email(email, name, otp_code)
-        email_sent = True
-    except (smtplib.SMTPAuthenticationError, smtplib.SMTPServerDisconnected) as e:
-        print(f"\n[SMTP AUTH ERROR] Could not log in to Gmail: {e}")
-        print(f"--> [DEV MODE ACTIVE] Verification OTP for {email}: {otp_code}\n")
-        dev_mode_active = True
+    except smtplib.SMTPAuthenticationError:
+        print("[SMTP AUTH ERROR] Gmail username or App Password rejected.")
+        return jsonify({"error": "Mail service authentication failed. Please configure server credentials."}), 500
     except smtplib.SMTPRecipientsRefused:
-        return jsonify({"error": "This email address was rejected by the mail server. Please enter a real email."}), 400
+        return jsonify({"error": "This email address was rejected as invalid or unreachable. Please enter your real email."}), 400
     except Exception as e:
-        print(f"\n[SMTP ERROR]: {e}")
-        print(f"--> [DEV MODE ACTIVE] Verification OTP for {email}: {otp_code}\n")
-        dev_mode_active = True
+        print(f"[SMTP ERROR] Failed to send email to {email}: {e}")
+        return jsonify({"error": "Failed to send verification code to this email. Please check that the email is real and reachable."}), 500
 
     # 7. Temporarily cache registration data pending verification (10 minutes)
     pending_verifications[email] = {
@@ -173,15 +168,6 @@ def signup():
         "otp": otp_code,
         "expires_at": datetime.utcnow() + timedelta(minutes=10),
     }
-
-    if dev_mode_active:
-        return jsonify({
-            "message": f"[Dev Mode] Mail failed to send. Your OTP code is: {otp_code}",
-            "email": email,
-            "requires_verification": True,
-            "dev_otp": otp_code,
-            "warning": "Gmail rejected credentials. Used terminal backup OTP."
-        })
 
     return jsonify({
         "message": f"Verification code sent to {email}. Check your inbox.",
@@ -266,12 +252,8 @@ def resend_otp():
     try:
         send_otp_email(email, pending["name"], new_otp)
     except Exception as e:
-        print(f"Error resending OTP: {e}")
-        print(f"--> [DEV MODE ACTIVE] Resent OTP Code for {email}: {new_otp}\n")
-        return jsonify({
-            "message": f"[Dev Mode] Resent OTP code: {new_otp}",
-            "dev_otp": new_otp
-        })
+        print(f"Error resending OTP to {email}: {e}")
+        return jsonify({"error": "Failed to resend code to your email. Please try again."}), 500
 
     return jsonify({"message": f"A new verification code was sent to {email}."})
 
